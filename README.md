@@ -4,7 +4,9 @@ A C# data model library for mzTab-M format, providing strongly-typed classes for
 
 ## Installation
 
-Install the package from NuGet:
+### From NuGet.org (Stable Releases)
+
+Install the stable package from NuGet:
 
 ```bash
 dotnet add package MzTabM.DataModel
@@ -15,6 +17,24 @@ Or via Package Manager Console:
 ```powershell
 Install-Package MzTabM.DataModel
 ```
+
+### From GitHub Packages (Development Versions)
+
+Development versions are automatically published to GitHub Packages on every push to the main branch. To use development packages:
+
+1. Add the GitHub Packages source to your project:
+
+```bash
+dotnet nuget add source --username YOUR_GITHUB_USERNAME --password YOUR_GITHUB_TOKEN --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kozo2/index.json"
+```
+
+2. Install the development package:
+
+```bash
+dotnet add package MzTabM.DataModel --version "1.0.0-dev.*" --source github
+```
+
+Note: Replace `YOUR_GITHUB_USERNAME` and `YOUR_GITHUB_TOKEN` with your GitHub credentials. The token needs the `read:packages` scope.
 
 ## Usage
 
