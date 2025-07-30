@@ -39,7 +39,15 @@ jobs:
       continue-on-error: true  # Continue even if no tests exist yet
     
     - name: Pack
-      run: dotnet pack ./csharp/MzTabM.DataModel.csproj --configuration Release --no-build --output ./artifacts
+      run: |
+        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          # Development package versioning for main branch
+          dotnet pack ./csharp/MzTabM.DataModel.csproj --configuration Release --no-build --output ./artifacts \
+            -p:PackageVersion="1.0.0-dev.${{ github.run_number }}"
+        else
+          # Use default versioning from project file
+          dotnet pack ./csharp/MzTabM.DataModel.csproj --configuration Release --no-build --output ./artifacts
+        fi
     
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -48,6 +56,36 @@ jobs:
         path: ./artifacts/*.nupkg
         retention-days: 7
 
+  publish-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: nuget-packages
+        path: ./artifacts
+    
+    - name: Publish to GitHub Packages
+      run: |
+        dotnet nuget push ./artifacts/*.nupkg \
+          --api-key ${{ secrets.GITHUB_TOKEN }} \
+          --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json \
+          --skip-duplicate
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish:
     needs: build
     runs-on: ubuntu-latest
@@ -55,7 +93,7 @@ jobs:
     
     steps:
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: nuget-packages
         path: ./artifacts
