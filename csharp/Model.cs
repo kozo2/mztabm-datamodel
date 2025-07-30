@@ -717,7 +717,7 @@ namespace MzTabM.Model
             return JsonSerializer.Serialize(obj, options ?? DefaultOptions);
         }
         
-        public static T FromJson<T>(this string json, JsonSerializerOptions options = null)
+        public static T FromJson<T>(this string json, JsonSerializerOptions options = null) where T : class
         {
             return JsonSerializer.Deserialize<T>(json, options ?? DefaultOptions);
         }
